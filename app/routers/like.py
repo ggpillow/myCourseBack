@@ -1,3 +1,11 @@
+"""
+Роутер лайков.
+
+Эндпоинт:
+- POST /likes/courses/{course_id}/toggle — переключение лайка на курсе
+  (ставит, если не было, и снимает, если был). Требует авторизации.
+"""
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 

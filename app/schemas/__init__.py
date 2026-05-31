@@ -1,3 +1,14 @@
+"""
+Пакет Pydantic-схем приложения.
+
+Схемы описывают формат данных на границе API: что приходит от клиента
+(Create/Update), что отдаётся клиенту (Read), и специализированные
+варианты для конкретных эндпоинтов (Detail, Preview).
+
+Реэкспортирует все публичные схемы для удобного импорта:
+    from app.schemas import UserCreate, CourseRead
+"""
+
 from app.schemas.auth import (
     ChangePasswordRequest,
     RefreshRequest,

@@ -1,4 +1,7 @@
-# app/schemas/like.py
+"""
+Схемы лайков курсов.
+"""
+
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict

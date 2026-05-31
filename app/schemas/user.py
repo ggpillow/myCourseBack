@@ -1,3 +1,7 @@
+"""
+Схемы пользователя: регистрация, обновление профиля, отображение.
+"""
+
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field

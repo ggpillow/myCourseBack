@@ -1,3 +1,11 @@
+"""
+CRUD-операции для тем (уроков) курса.
+
+Тема принадлежит ровно одному курсу (course_id), имеет порядковый
+номер (order_index) для отображения в правильной последовательности
+и флаг is_free — разрешает ли просмотр без покупки курса.
+"""
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

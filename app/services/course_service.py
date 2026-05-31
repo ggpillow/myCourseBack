@@ -1,3 +1,21 @@
+"""
+Сервис управления курсами и формирования витрин каталога.
+
+Покрывает:
+- CRUD над курсами с проверкой существования категории;
+- получение каталога с фильтрами, поиском, сортировкой и пагинацией;
+- топ популярных курсов по числу лайков;
+- enrich_course — обогащение карточки курса агрегатами (likes_count,
+  topics_count) для списочных эндпоинтов;
+- build_course_detail — сборка полной страницы курса с учётом прав
+  доступа: гость / авторизованный / купивший / админ. Контент тем
+  скрывается у платных тем, если у пользователя нет покупки и он
+  не администратор.
+
+Здесь же централизована логика "что может видеть пользователь" —
+ключевое бизнес-правило монетизации.
+"""
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError
@@ -8,6 +26,7 @@ from app.crud import purchase as purchase_crud
 from app.models.course import Course
 from app.models.user import User
 from app.schemas.course import CourseCreate, CourseUpdate
+from app.models.user import UserRole
 
 
 async def get_or_404(db: AsyncSession, course_id: int) -> Course:
@@ -94,7 +113,7 @@ async def build_course_detail(db: AsyncSession, course_id: int, user: User | Non
 
     is_purchased = False
     is_liked = False
-    is_admin = user is not None and user.role.value == "admin"
+    is_admin = user is not None and user.role == UserRole.ADMIN
 
     if user is not None:
         is_purchased = await purchase_crud.exists(db, user.id, course.id)

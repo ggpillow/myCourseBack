@@ -1,3 +1,13 @@
+"""
+Точка входа приложения FastAPI.
+
+- Инициализирует приложение через фабрику create_app().
+- Подключает middleware: CORS и логирование запросов.
+- Регистрирует обработчики исключений и rate limiter.
+- Подключает роутеры с общим префиксом /api.
+- Добавляет служебный эндпоинт /health (без префикса) для проб готовности.
+"""
+
 import time
 
 from fastapi import FastAPI, Request
@@ -16,8 +26,9 @@ from app.routers import purchase as purchase_router
 from app.routers import topic as topic_router
 from app.routers import user as user_router
 
-# Глобальный лимитер
 limiter = Limiter(key_func=get_remote_address)
+
+API_PREFIX = "/api"
 
 
 def create_app() -> FastAPI:
@@ -50,14 +61,13 @@ def create_app() -> FastAPI:
 
     register_exception_handlers(app)
 
-    api_prefix = "/api/v1"
-    app.include_router(auth_router.router, prefix=api_prefix)
-    app.include_router(user_router.router, prefix=api_prefix)
-    app.include_router(category_router.router, prefix=api_prefix)
-    app.include_router(course_router.router, prefix=api_prefix)
-    app.include_router(topic_router.router, prefix=api_prefix)
-    app.include_router(purchase_router.router, prefix=api_prefix)
-    app.include_router(like_router.router, prefix=api_prefix)
+    app.include_router(auth_router.router, prefix=API_PREFIX)
+    app.include_router(user_router.router, prefix=API_PREFIX)
+    app.include_router(category_router.router, prefix=API_PREFIX)
+    app.include_router(course_router.router, prefix=API_PREFIX)
+    app.include_router(topic_router.router, prefix=API_PREFIX)
+    app.include_router(purchase_router.router, prefix=API_PREFIX)
+    app.include_router(like_router.router, prefix=API_PREFIX)
 
     @app.get("/health", tags=["system"])
     async def health() -> dict:

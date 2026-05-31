@@ -1,3 +1,25 @@
+"""
+Роутер курсов.
+
+Эндпоинты:
+- GET    /courses             — каталог с фильтрами, поиском, сортировкой и пагинацией.
+- GET    /courses/popular     — топ курсов по числу лайков.
+- GET    /courses/{id}        — детальная страница курса с учётом прав доступа.
+- POST   /courses             — создание (только админ).
+- PATCH  /courses/{id}        — обновление (только админ).
+- DELETE /courses/{id}        — удаление (только админ).
+
+Каталог и детальная страница работают и для гостей, и для авторизованных
+пользователей — авторизация опциональна (get_current_user_optional),
+что позволяет показывать одинаковый список всем и обогащать данными
+(is_liked, is_purchased) только для залогиненных.
+
+Параметры sort_by и order типизированы через Literal — это даёт
+автоматическую валидацию FastAPI и красивый enum в OpenAPI.
+"""
+
+from typing import Literal
+
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,12 +36,10 @@ router = APIRouter(prefix="/courses", tags=["courses"])
 async def list_courses(
     category_id: int | None = Query(None, description="Фильтр по категории"),
     search: str | None = Query(None, description="Поиск по названию и описанию"),
-    sort_by: str = Query(
-        "created_at",
-        regex="^(created_at|price|title)$",
-        description="Сортировка: created_at | price | title",
+    sort_by: Literal["created_at", "price", "title"] = Query(
+        "created_at", description="Поле сортировки"
     ),
-    order: str = Query("desc", regex="^(asc|desc)$", description="Порядок: asc | desc"),
+    order: Literal["asc", "desc"] = Query("desc", description="Направление сортировки"),
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),

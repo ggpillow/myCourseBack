@@ -1,3 +1,17 @@
+"""
+Сервис управления темами (уроками) и контролем доступа к ним.
+
+Покрывает:
+- CRUD над темами в рамках конкретного курса;
+- получение списка тем курса;
+- get_topic_for_user — ключевая функция контроля доступа: возвращает
+  тему, если она бесплатная, пользователь — админ, или у него есть
+  покупка курса; в остальных случаях кидает 403.
+
+Логика "кто что видит" единая со сборкой страницы курса в
+course_service.build_course_detail.
+"""
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, PermissionDeniedError

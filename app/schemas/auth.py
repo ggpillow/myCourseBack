@@ -1,4 +1,7 @@
-# app/schemas/auth.py
+"""
+Схемы для аутентификации и управления учётной записью.
+"""
+
 from pydantic import BaseModel, EmailStr, Field
 
 

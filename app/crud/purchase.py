@@ -1,3 +1,12 @@
+"""
+CRUD-операции для покупок курсов.
+
+Покупка — это факт приобретения курса пользователем, дающий доступ
+к платному контенту (полный текст тем). Уникальность пары
+(user_id, course_id) гарантируется на уровне БД — повторная покупка
+одного курса невозможна.
+"""
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -28,13 +37,20 @@ async def get_by_user_and_course(
     return result.scalar_one_or_none()
 
 
-async def get_by_user(session: AsyncSession, user_id: int) -> list[Purchase]:
+async def get_by_user(
+    session: AsyncSession,
+    user_id: int,
+    skip: int = 0,
+    limit: int = 50,
+) -> list[Purchase]:
     """Все покупки пользователя со связанными курсами (для 'мои курсы')."""
     result = await session.execute(
         select(Purchase)
         .options(selectinload(Purchase.course))
         .where(Purchase.user_id == user_id)
         .order_by(Purchase.id.desc())
+        .offset(skip)
+        .limit(limit)
     )
     return list(result.scalars().all())
 

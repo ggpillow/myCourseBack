@@ -1,23 +1,27 @@
+"""
+Схемы курсов: создание, обновление, краткое и детальное отображение.
+"""
+
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.category import CategoryRead
 from app.schemas.topic import TopicPreview, TopicRead
 
 
 class CourseCreate(BaseModel):
-    title: str
-    description: str = ""
-    price: int = 0
-    category_id: int
+    title: str = Field(..., min_length=1, max_length=200, description="Название курса")
+    description: str = Field(default="", max_length=5000)
+    price: int = Field(default=0, ge=0, description="Цена в рублях, не может быть отрицательной")
+    category_id: int = Field(..., gt=0)
 
 
 class CourseUpdate(BaseModel):
-    title: str | None = None
-    description: str | None = None
-    price: int | None = None
-    category_id: int | None = None
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = Field(default=None, max_length=5000)
+    price: int | None = Field(default=None, ge=0)
+    category_id: int | None = Field(default=None, gt=0)
 
 
 class CourseRead(BaseModel):

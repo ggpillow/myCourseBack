@@ -1,3 +1,12 @@
+"""
+CRUD-операции для курсов.
+
+Помимо базовых операций содержит специализированные запросы:
+- list_courses с фильтрами, поиском и сортировкой для каталога.
+- list_popular — топ курсов по количеству лайков.
+- count_likes, count_topics — агрегаты для отображения статистики.
+"""
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -45,8 +54,6 @@ async def list_courses(
     if search:
         pattern = f"%{search}%"
         stmt = stmt.where((Course.title.ilike(pattern)) | (Course.description.ilike(pattern)))
-
-    # Сортировка
     sort_columns = {
         "created_at": Course.created_at,
         "price": Course.price,
@@ -87,12 +94,12 @@ async def count_topics(db: AsyncSession, course_id: int) -> int:
     return result.scalar_one() or 0
 
 
-async def create(db: AsyncSession, data: CourseCreate) -> Course:
+async def create(db, data):
     course = Course(**data.model_dump())
     db.add(course)
     await db.commit()
-    await db.refresh(course)
-    return await get_by_id(db, course.id)
+    await db.refresh(course, attribute_names=["category"])  # подгружаем category в одном рефреше
+    return course
 
 
 async def update(db: AsyncSession, course: Course, data: CourseUpdate) -> Course:

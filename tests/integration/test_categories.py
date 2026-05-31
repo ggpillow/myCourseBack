@@ -51,7 +51,7 @@ async def test_update_category(client: AsyncClient):
     created = await client.post(f"{API}/categories", json={"name": "Old Name"})
     cid = created.json()["id"]
 
-    response = await client.put(
+    response = await client.patch(
         f"{API}/categories/{cid}",
         json={"name": "New Name"},
     )
@@ -67,7 +67,6 @@ async def test_delete_category(client: AsyncClient):
     response = await client.delete(f"{API}/categories/{cid}")
     assert response.status_code == 204
 
-    # Проверяем что действительно удалена
     check = await client.get(f"{API}/categories/{cid}")
     assert check.status_code == 404
 

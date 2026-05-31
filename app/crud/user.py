@@ -1,3 +1,11 @@
+"""
+CRUD-операции для пользователей.
+
+Особенность: пароль хэшируется внутри create/change_password — это
+гарантирует, что в БД никогда не попадёт пароль в открытом виде,
+даже если вызывающий код забудет про хэширование.
+"""
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

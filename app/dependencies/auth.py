@@ -1,15 +1,29 @@
+"""
+FastAPI-зависимости для авторизации и контроля доступа.
+
+Содержит готовые Depends-функции, которые подставляются в роутеры:
+- get_current_user — обязательная авторизация (401 при отсутствии токена).
+- get_current_user_optional — мягкая авторизация (None при отсутствии).
+- get_current_admin / require_admin — проверка роли администратора.
+
+Централизация логики авторизации в одном модуле гарантирует, что все
+эндпоинты используют одинаковые правила проверки токенов и ролей.
+"""
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_session
+from app.core.database import get_db
 from app.core.security import decode_token
 from app.crud import user as crud
 from app.models.user import User, UserRole
+from app.core.config import settings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-# Опциональная схема — не кидает 401, если токена нет
-oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(
+    tokenUrl="/api/auth/login", auto_error=False
+)
 
 _credentials_exc = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -20,7 +34,7 @@ _credentials_exc = HTTPException(
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
-    db: AsyncSession = Depends(get_session),
+    db: AsyncSession = Depends(get_db),
 ) -> User:
     """
     Достаёт текущего пользователя из access-токена.
@@ -48,7 +62,7 @@ async def get_current_user(
 
 async def get_current_user_optional(
     token: str | None = Depends(oauth2_scheme_optional),
-    db: AsyncSession = Depends(get_session),
+    db: AsyncSession = Depends(get_db),
 ) -> User | None:
     """
     Возвращает пользователя, если есть валидный токен.
@@ -88,5 +102,4 @@ async def get_current_admin(
     return current_user
 
 
-# Алиас: новые роутеры используют имя require_admin
 require_admin = get_current_admin

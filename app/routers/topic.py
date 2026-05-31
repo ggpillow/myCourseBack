@@ -1,3 +1,21 @@
+"""
+Роутер тем (уроков).
+
+Эндпоинты:
+- GET    /courses/{course_id}/topics — список тем курса (превью без контента).
+- GET    /topics/{topic_id}          — одна тема с проверкой доступа.
+- POST   /courses/{course_id}/topics — создание темы в курсе (только админ).
+- PATCH  /topics/{topic_id}          — обновление темы (только админ).
+- DELETE /topics/{topic_id}          — удаление темы (только админ).
+
+Чтение конкретной темы пропущено через get_current_user_optional —
+сервис сам решает, отдавать контент или 403, в зависимости от
+is_free, факта покупки и роли пользователя.
+
+Префикса у роутера нет, так как пути строятся по двум разным базам
+(/courses/.../topics и /topics/...) в соответствии с REST-семантикой.
+"""
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 

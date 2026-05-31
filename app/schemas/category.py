@@ -1,3 +1,7 @@
+"""
+Схемы категорий курсов.
+"""
+
 from pydantic import BaseModel, ConfigDict
 
 

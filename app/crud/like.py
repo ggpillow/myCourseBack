@@ -1,3 +1,12 @@
+"""
+CRUD-операции для лайков курсов.
+
+Лайк — это пара (user_id, course_id) с уникальным ограничением:
+один пользователь может лайкнуть курс не более одного раза.
+Основная операция — toggle: ставит или убирает лайк в зависимости
+от текущего состояния.
+"""
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
