@@ -1,6 +1,6 @@
 import pytest
 
-API = "/api/v1"
+API = "/api"
 
 
 # ---------- helpers ----------

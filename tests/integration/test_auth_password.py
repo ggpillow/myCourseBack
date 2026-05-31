@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
-API = "/api/v1"
+API = "/api"
 
 
 async def _register_and_login(client: AsyncClient, email: str, password: str = "strongpass123") -> dict:

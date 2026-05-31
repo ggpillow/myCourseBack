@@ -16,8 +16,7 @@ from app.core.database import Base, get_db
 from app.main import app
 from app.models.user import User, UserRole
 
-from app.models import user
-
+from app.models import user  # noqa: F401 — регистрация моделей
 
 from app.main import limiter as _app_limiter
 from app.routers.auth import limiter as _auth_limiter
@@ -53,6 +52,29 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+class _PatchedAsyncClient(AsyncClient):
+    """
+    Кастомный клиент: при POST на /auth/login с json={"email":..., "password":...}
+    автоматически конвертирует в form-data {"username":..., "password":...},
+    т.к. реальный endpoint использует OAuth2PasswordRequestForm.
+    """
+
+    async def post(self, url, *args, **kwargs):
+        if (
+            isinstance(url, str)
+            and url.endswith("/auth/login")
+            and "json" in kwargs
+            and isinstance(kwargs["json"], dict)
+            and "email" in kwargs["json"]
+        ):
+            body = kwargs.pop("json")
+            kwargs["data"] = {
+                "username": body["email"],
+                "password": body["password"],
+            }
+        return await super().post(url, *args, **kwargs)
+
+
 @pytest_asyncio.fixture
 async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     async def override_get_db():
@@ -61,7 +83,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     app.dependency_overrides[get_db] = override_get_db
 
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+    async with _PatchedAsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
 
     app.dependency_overrides.clear()
@@ -72,7 +94,7 @@ async def admin_headers(client: AsyncClient, db_session: AsyncSession) -> dict:
     """Регистрирует юзера, повышает до admin, возвращает headers."""
     email = "admin_fixture@example.com"
     await client.post(
-        "/api/v1/auth/register",
+        "/api/auth/register",
         json={
             "email": email,
             "full_name": "Admin User",
@@ -85,7 +107,7 @@ async def admin_headers(client: AsyncClient, db_session: AsyncSession) -> dict:
     await db_session.commit()
 
     r = await client.post(
-        "/api/v1/auth/login",
+        "/api/auth/login",
         json={"email": email, "password": "adminpass123"},
     )
     token = r.json()["access_token"]

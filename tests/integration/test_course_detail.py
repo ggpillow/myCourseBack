@@ -3,7 +3,7 @@ from sqlalchemy import update
 
 from app.models.user import User, UserRole
 
-API = "/api/v1"
+API = "/api"
 
 
 # ---------- helpers ----------

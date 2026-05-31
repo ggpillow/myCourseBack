@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
-API = "/api/v1"
+API = "/api"
 
 
 @pytest.mark.asyncio
@@ -18,7 +18,7 @@ async def test_register_success(client: AsyncClient):
     data = response.json()
     assert data["email"] == "newuser@example.com"
     assert data["full_name"] == "New User"
-    assert data["role"] == "student"
+    assert data["role"] == "user"
     assert "id" in data
     assert "created_at" in data
     assert "password" not in data
