@@ -47,5 +47,5 @@ jobs:
           DB_PASSWORD: postgres
           DB_NAME: microlearning
           TEST_DB_NAME: microlearning_test
-          SECRET_KEY: test-secret-key-for-ci-only
+          SECRET_KEY: test-secret-key-for-ci-only-do-not-use-in-production
         run: pytest -v
