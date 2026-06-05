@@ -2,9 +2,6 @@ import pytest
 
 API = "/api"
 
-
-# ---------- helpers ----------
-
 async def _create_category(client, admin_headers, name: str) -> int:
     r = await client.post(
         f"{API}/categories",
@@ -41,9 +38,6 @@ async def _register_and_login(client, email: str, password: str = "pass12345") -
     )
     token = r.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
-
-
-# ---------- tests ----------
 
 @pytest.mark.asyncio
 async def test_like_course_success(client, admin_headers):
@@ -91,14 +85,12 @@ async def test_unlike_on_second_toggle(client, admin_headers):
     course = await _create_course(client, admin_headers, title="C3", category_id=cat_id)
     user_headers = await _register_and_login(client, "toggler@example.com")
 
-    # лайк
     r1 = await client.post(
         f"{API}/likes/courses/{course['id']}/toggle", headers=user_headers
     )
     assert r1.json()["is_liked"] is True
     assert r1.json()["likes_count"] == 1
 
-    # анлайк
     r2 = await client.post(
         f"{API}/likes/courses/{course['id']}/toggle", headers=user_headers
     )
@@ -157,16 +149,13 @@ async def test_unlike_does_not_affect_other_user(client, admin_headers):
 
     url = f"{API}/likes/courses/{course['id']}/toggle"
 
-    # оба лайкают
     await client.post(url, headers=user_a)
     await client.post(url, headers=user_b)
 
-    # A анлайкает
     r = await client.post(url, headers=user_a)
     assert r.json()["is_liked"] is False
     assert r.json()["likes_count"] == 1
 
-    # B снова жмёт — для него это unlike (он уже лайкнул)
     r = await client.post(url, headers=user_b)
     assert r.json()["is_liked"] is False
     assert r.json()["likes_count"] == 0

@@ -38,7 +38,7 @@ async def list_categories(db: AsyncSession) -> list[Category]:
 async def create_category(db: AsyncSession, data: CategoryCreate) -> Category:
     if await crud.get_by_name(db, data.name) is not None:
         raise AlreadyExistsError("Категория с таким названием уже существует")
-    return await crud.create(db, data.name)  # ← .name
+    return await crud.create(db, data.name)
 
 
 async def update_category(db: AsyncSession, category_id: int, data: CategoryUpdate) -> Category:
@@ -48,7 +48,7 @@ async def update_category(db: AsyncSession, category_id: int, data: CategoryUpda
         existing = await crud.get_by_name(db, new_name)
         if existing is not None and existing.id != category.id:
             raise AlreadyExistsError("Категория с таким названием уже существует")
-        return await crud.update(db, category, new_name)  # ← .name
+        return await crud.update(db, category, new_name)
     return category
 
 

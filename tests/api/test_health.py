@@ -1,9 +1,5 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
-
-# ВАЖНО: поправь импорт под свой entry-point.
-# Если app живёт в main.py → from main import app
-# Если в fastAPI.py            → from fastAPI import app
 from app.main import app
 
 

@@ -48,7 +48,6 @@ async def register(db: AsyncSession, user_in: UserCreate) -> User:
         raise AlreadyExistsError("Пользователь с таким email уже существует")
     user = await crud.create(db, user_in)
 
-    # Приветственное письмо (заглушка)
     await send_welcome_email(user.email, user.full_name)
 
     return user

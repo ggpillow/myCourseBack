@@ -2,9 +2,6 @@ import pytest
 
 API = "/api"
 
-
-# ---------- helpers ----------
-
 async def _create_category(client, admin_headers, name: str) -> int:
     r = await client.post(
         f"{API}/categories",
@@ -41,9 +38,6 @@ async def _register_and_login(client, email: str, password: str = "pass12345") -
     )
     token = r.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
-
-
-# ---------- tests ----------
 
 @pytest.mark.asyncio
 async def test_buy_course_success(client, admin_headers):
@@ -152,18 +146,15 @@ async def test_my_purchases_returns_only_own(client, admin_headers):
     user_a = await _register_and_login(client, "user_a@example.com")
     user_b = await _register_and_login(client, "user_b@example.com")
 
-    # юзер A покупает
     r = await client.post(
         f"{API}/purchases/courses/{course['id']}", headers=user_a
     )
     assert r.status_code == 201
 
-    # юзер B не должен это видеть
     r = await client.get(f"{API}/purchases/my", headers=user_b)
     assert r.status_code == 200
     assert r.json() == []
 
-    # а юзер A — должен
     r = await client.get(f"{API}/purchases/my", headers=user_a)
     assert r.status_code == 200
     assert len(r.json()) == 1

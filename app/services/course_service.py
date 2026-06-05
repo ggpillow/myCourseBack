@@ -119,7 +119,6 @@ async def build_course_detail(db: AsyncSession, course_id: int, user: User | Non
         is_purchased = await purchase_crud.exists(db, user.id, course.id)
         is_liked = await like_crud.get_by_user_and_course(db, user.id, course.id) is not None
 
-    # Темы: полный контент только если is_free, куплено или админ
     topics_payload = []
     for t in sorted(course.topics, key=lambda x: (x.order_index, x.id)):
         if t.is_free or is_purchased or is_admin:

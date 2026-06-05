@@ -22,7 +22,6 @@ services:
     container_name: microlearning_backend
     restart: always
     environment:
-      # Внутри docker-сети хост БД — это имя сервиса 'db', а НЕ localhost
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: postgres

@@ -37,14 +37,12 @@ async def test_change_password_success(client: AsyncClient):
     )
     assert response.status_code in (200, 204)
 
-    # старый пароль больше не работает
     r_old = await client.post(
         f"{API}/auth/login",
         json={"email": email, "password": old_password},
     )
     assert r_old.status_code == 401
 
-    # новый пароль работает
     r_new = await client.post(
         f"{API}/auth/login",
         json={"email": email, "password": new_password},

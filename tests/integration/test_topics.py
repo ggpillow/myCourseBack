@@ -2,9 +2,6 @@ import pytest
 
 API = "/api"
 
-
-# ---------- helpers ----------
-
 async def _create_category(client, admin_headers, name: str) -> int:
     r = await client.post(
         f"{API}/categories", json={"name": name}, headers=admin_headers
@@ -44,9 +41,6 @@ async def _buy_course(client, user_headers, course_id: int):
         f"{API}/purchases/courses/{course_id}", headers=user_headers
     )
     assert r.status_code in (200, 201), r.text
-
-
-# ---------- CRUD & permissions ----------
 
 @pytest.mark.asyncio
 async def test_create_topic_requires_admin(client, admin_headers):
@@ -92,9 +86,6 @@ async def test_create_topic_in_nonexistent_course(client, admin_headers):
     )
     assert r.status_code == 404
 
-
-# ---------- list / preview ----------
-
 @pytest.mark.asyncio
 async def test_list_topics_returns_preview_without_content(client, admin_headers):
     """🔒 PRIVACY: список тем не содержит content (только preview)."""
@@ -121,7 +112,6 @@ async def test_list_topics_ordered_by_order_index(client, admin_headers):
     cat_id = await _create_category(client, admin_headers, "Cat")
     course = await _create_course(client, admin_headers, title="C4", category_id=cat_id)
 
-    # вставляем в обратном порядке
     for title, idx in [("Third", 3), ("First", 1), ("Second", 2)]:
         await client.post(
             f"{API}/courses/{course['id']}/topics",
@@ -132,9 +122,6 @@ async def test_list_topics_ordered_by_order_index(client, admin_headers):
     r = await client.get(f"{API}/courses/{course['id']}/topics")
     titles = [t["title"] for t in r.json()]
     assert titles == ["First", "Second", "Third"]
-
-
-# ---------- access control on GET /topics/{id} ----------
 
 @pytest.mark.asyncio
 async def test_free_topic_accessible_to_anonymous(client, admin_headers):
@@ -227,9 +214,6 @@ async def test_paid_topic_accessible_to_admin(client, admin_headers):
     assert r.status_code == 200
     assert r.json()["content"] == "ADMIN_SEES"
 
-
-# ---------- update / delete ----------
-
 @pytest.mark.asyncio
 async def test_update_topic_partial(client, admin_headers):
     """PATCH меняет только переданные поля."""
@@ -251,7 +235,7 @@ async def test_update_topic_partial(client, admin_headers):
     assert r.status_code == 200
     data = r.json()
     assert data["title"] == "New"
-    assert data["content"] == "OldBody"  # не изменился
+    assert data["content"] == "OldBody"
     assert data["is_free"] is False
 
 
@@ -294,11 +278,9 @@ async def test_delete_topic_does_not_remove_course(client, admin_headers):
     )
     assert r_del.status_code == 204
 
-    # курс жив
     r_course = await client.get(f"{API}/courses/{course['id']}")
     assert r_course.status_code == 200
 
-    # осталась 1 тема
     r_list = await client.get(f"{API}/courses/{course['id']}/topics")
     assert len(r_list.json()) == 1
     assert r_list.json()[0]["title"] == "T2"

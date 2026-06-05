@@ -5,9 +5,6 @@ from app.models.user import User, UserRole
 
 API = "/api"
 
-
-# ---------- helpers ----------
-
 async def _create_category(client, admin_headers, name: str) -> int:
     r = await client.post(
         f"{API}/categories",
@@ -75,9 +72,6 @@ async def _promote_to_admin(db_session, email: str) -> None:
         update(User).where(User.email == email).values(role=UserRole.ADMIN)
     )
     await db_session.commit()
-
-
-# ---------- tests ----------
 
 @pytest.mark.asyncio
 async def test_course_detail_anon_hides_paid_content(client, admin_headers):
@@ -175,7 +169,6 @@ async def test_course_detail_admin_sees_all_content(client, admin_headers, db_se
         order_index=1, is_free=False,
     )
 
-    # отдельный админ, который НЕ покупал курс
     email = "second_admin@example.com"
     second_admin_headers = await _register_and_login(client, email)
     await _promote_to_admin(db_session, email)
@@ -183,7 +176,7 @@ async def test_course_detail_admin_sees_all_content(client, admin_headers, db_se
     r = await client.get(f"{API}/courses/{course['id']}", headers=second_admin_headers)
     assert r.status_code == 200
     data = r.json()
-    assert data["is_purchased"] is False  # реально не покупал
+    assert data["is_purchased"] is False
     assert data["topics"][0]["content"] == "ADMIN-CAN-SEE"
 
 
@@ -195,17 +188,14 @@ async def test_course_detail_is_liked_flag(client, admin_headers):
 
     user_headers = await _register_and_login(client, "liker@example.com")
 
-    # до лайка
     r = await client.get(f"{API}/courses/{course['id']}", headers=user_headers)
     assert r.json()["is_liked"] is False
 
-    # лайкаем
     r = await client.post(
         f"{API}/likes/courses/{course['id']}/toggle", headers=user_headers
     )
     assert r.status_code == 200, r.text
 
-    # после лайка
     r = await client.get(f"{API}/courses/{course['id']}", headers=user_headers)
     assert r.json()["is_liked"] is True
 
@@ -216,7 +206,6 @@ async def test_course_detail_topics_ordered_by_order_index(client, admin_headers
     cat_id = await _create_category(client, admin_headers, "C")
     course = await _create_course(client, admin_headers, title="Crs", category_id=cat_id)
 
-    # создаём в перемешанном порядке
     await _create_topic(
         client, admin_headers, course_id=course["id"],
         title="Third", content="", order_index=3, is_free=True,

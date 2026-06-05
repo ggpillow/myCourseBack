@@ -2,9 +2,6 @@ import pytest
 
 API = "/api"
 
-
-# ---------- helpers ----------
-
 async def _create_category(client, admin_headers, name: str) -> int:
     r = await client.post(
         f"{API}/categories",
@@ -37,9 +34,6 @@ async def _create_course(
     assert r.status_code == 201, r.text
     return r.json()
 
-
-# ---------- tests ----------
-
 @pytest.mark.asyncio
 async def test_create_course_as_admin(client, admin_headers):
     cat_id = await _create_category(client, admin_headers, "Programming")
@@ -65,7 +59,6 @@ async def test_create_course_as_admin(client, admin_headers):
 
 @pytest.mark.asyncio
 async def test_create_course_requires_admin(client):
-    # без авторизации — 401
     r = await client.post(
         f"{API}/courses",
         json={"title": "X", "category_id": 1},
@@ -75,7 +68,6 @@ async def test_create_course_requires_admin(client):
 
 @pytest.mark.asyncio
 async def test_create_course_as_regular_user_forbidden(client):
-    # регистрируем обычного юзера
     await client.post(
         f"{API}/auth/register",
         json={

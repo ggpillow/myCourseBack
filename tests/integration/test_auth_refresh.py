@@ -35,7 +35,6 @@ async def test_refresh_success(client: AsyncClient):
     assert "access_token" in data
     assert "refresh_token" in data
     assert data["token_type"] == "bearer"
-    # токены — непустые JWT-строки (формат header.payload.signature)
     assert data["access_token"].count(".") == 2
     assert data["refresh_token"].count(".") == 2
 
