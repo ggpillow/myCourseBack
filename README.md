@@ -33,26 +33,8 @@ git clone <repo-url>
 cd MyAppCourses
 cp .env.example .env
 docker compose up --build
-
-После запуска приложение автоматически:
-- дождётся готовности PostgreSQL,
-- применит миграции Alembic,
-- запустит FastAPI на порту **8000**.
-
-### Доступные адреса
-
-| Назначение | URL |
-|---|---|
-| Swagger UI (интерактивная документация) | http://localhost:8000/docs |
-| ReDoc | http://localhost:8000/redoc |
-| Health-check | http://localhost:8000/health |
-
-### Остановка
-
-```bash
-docker-compose down            # остановить контейнеры
-docker-compose down -v         # + удалить данные БД (volume)
 ```
+
 ## 4. Environment
 ### Environment Variables
 The project uses a local `.env` file.  
@@ -64,7 +46,7 @@ Example values are provided in `.env.example`.
 - ReDoc: http://localhost:8000/redoc
 
 ## 6. Project Structure
-
+```text
 app/
 ├── routers/
 ├── services/
@@ -72,6 +54,7 @@ app/
 ├── models/
 ├── schemas/
 └── core/
+```
 
 ## 7. Testing
 ```bash
